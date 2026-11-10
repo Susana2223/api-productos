@@ -1,10 +1,9 @@
-//Este archivo contiene la lógica de la aplicación 
+//Este archivo contiene la lógica de la aplicación
 //5 procedimientos: buscar, listar, registrar, atualizar, eliminar
 
 //PASO 1
-const {pool} = require('../config/database')
-const CAMPOS = 'id , marca, descripcion, precio, stock' //Dato común
-
+const { pool } = require("../config/database");
+const CAMPOS = "id , marca, descripcion, precio, stock"; //Dato común
 
 //Todas las funciones serán ASÍNCRONAS (tardarán un tiempo en ser resueltas...)
 //milisegundos, segundos (1000 = 1seg)
@@ -12,130 +11,137 @@ const CAMPOS = 'id , marca, descripcion, precio, stock' //Dato común
 //req (require -solicitar >>>), res (result - <<< resultado)
 
 //Crear - actualizar
-const validarCampos = ({marca, descripcion, precio, stock} = {}) =>{
-const errores = []
-if(marca.trim() === '') errores.push('La marca es obligatoria')
-if(descripcion.trim() === '') errores.push('La descripción es necesaria')
-if(precio === undefined || isNaN (precio) || precio < 0) errores.push('Verifique el precio') 
-if(stock === undefined || !Number.isInteger(stock) || Number(stock) < 0 )errores.push('Error en el stock')
+const validarCampos = ({ marca, descripcion, precio, stock } = {}) => {
+  const errores = [];
+  if (marca.trim() === "") errores.push("La marca es obligatoria");
+  if (descripcion.trim() === "") errores.push("La descripción es necesaria");
+  if (precio === undefined || isNaN(precio) || precio < 0)
+    errores.push("Verifique el precio");
+  if (stock === undefined || !Number.isInteger(stock) || Number(stock) < 0)
+    errores.push("Error en el stock");
 
-//Es posible tener más de un error
-return errores
+  //Es posible tener más de un error
+  return errores;
+};
 
-}
-
-
-const listarProductos = async(req, res) => {
+const listarProductos = async (req, res) => {
   //Se utiliza try - catch porque existe una probabilidad de error
-  try{
+  try {
     //Deserialización (obtener el primer elemento del arreglo)
-    const [productos] = await pool.query('SELECT * FROM productos ORDER BY id')
+    const [productos] = await pool.query("SELECT * FROM productos ORDER BY id");
     res.status(200).json({
       ok: true,
       total: productos.length,
-      data: productos
-    })
-  }catch(e){
-    console.error(e)
+      data: productos,
+    });
+  } catch (e) {
+    console.error(e);
     res.status(500).json({
       ok: false,
-      message: 'Error interno en el servidor'
-    })
+      message: "Error interno en el servidor",
+    });
   }
- }
+};
 
- //Buscar ¿Cómo funciona?
- //API REST => http://meaplicacion.com/api/productos/1
-const obtenerProducto = async(req, res) => {
-  try{
+//Buscar ¿Cómo funciona?
+//API REST => http://meaplicacion.com/api/productos/1
+const obtenerProducto = async (req, res) => {
+  try {
     //req.params representa los parámetros enviados por la URL
-    const id = Number(req.params.id)
-    if(id <= 0){
+    const id = Number(req.params.id);
+    if (id <= 0) {
       return res.status(400).json({
         ok: false,
-        message: 'El ID no puede ser negativo o cero'
-      })
+        message: "El ID no puede ser negativo o cero",
+      });
     }
 
     //Si podemos buscar (>0). Utilizaremos EXECUTE porque pasaremos parámetros
     //Evitaremos SQLinjection (técnica hackeo)
     //? = comodín, representa un valor
-    const [registro] = await pool.execute(`SELECT * FROM productos WHERE id = ?`, [id])
-  //Existe la posibilidad que NO encontremos el registro
-  if (registro.length === 0){
-    return res.status(404).json({
-      ok: false,
-      message: 'No existe el producto'
-    })
-  }
-  //Si llegamos hasta aquí, entonces  SI existe el registro
+    const [registro] = await pool.execute(
+      `SELECT * FROM productos WHERE id = ?`,
+      [id],
+    );
+    //Existe la posibilidad que NO encontremos el registro
+    if (registro.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        message: "No existe el producto",
+      });
+    }
+    //Si llegamos hasta aquí, entonces  SI existe el registro
 
-  res.status(200).json({
-    ok: true,
-    data: registro[0]
-  })
-  }catch(e){
-    console.error(e)
+    res.status(200).json({
+      ok: true,
+      data: registro[0],
+    });
+  } catch (e) {
+    console.error(e);
     res.status(500).json({
       ok: false,
-      message: 'Error interno en el servidor'
-    })
+      message: "Error interno en el servidor",
+    });
   }
-}
+};
 
-const crearProducto = async(req, res) =>{
-  try{
-    //Validación...
-
-  }catch(e){
-    console.error(e)
-    res.status(500).json({
-      ok: false,
-      message: 'Error interno en el servidor'
-    })
-  }
- }
-
-const actualizarProducto = async(req, res) =>{ 
-  try{
-    const errores = validarCampos(req.body) //req.body contiene todos los a reguistrar
-    if (errores.length > 0){
+const crearProducto = async (req, res) => {
+  try {
+    const errores = validarCampos(req.body); //req.body contiene todos los a registrar
+    if (errores.length > 0) {
       return res.status(400).json({
         ok: false,
-        message: 'Verifique los datos solicitados',
-        errores
-      })
+        message: "Verifique los datos solicitados",
+        errores,
+      });
     }
 
-  //Procedemos a guardar los datos
-  const { marca, descripcion, precio, stock} = req.body
-  const consulta = `insert into productos (marca, descripcion, precio, stock) values (?,?,?,?)`
-  const [registro] = await pool.execute(consulta, [marca, descripcion, precio, stock])
-  
-  res.status(201).json({
-    ok: true,
-    id: registro.insertId
-  })
-  }catch(e){
-    console.error(e)
+    //Procedemos a guardar los datos
+    const { marca, descripcion, precio, stock } = req.body;
+    const consulta =
+      "INSERT INTO productos (marca, descripcion, precio, stock) VALUES (?,?,?,?)";
+    const [registro] = await pool.execute(consulta, [
+      marca,
+      descripcion,
+      precio,
+      stock,
+    ]);
+
+    res.status(201).json({
+      ok: true,
+      id: registro.insertId,
+    });
+  } catch (e) {
+    console.error(e);
     res.status(500).json({
       ok: false,
-      message: 'Error interno en el servidor'
-    })
+      message: "Error interno en el servidor",
+    });
   }
-}
+};
 
-const eliminarProducto = async(req, res) =>{
-  try{
-
-  }catch(e){
-    console.error(e)
+const actualizarProducto = async (req, res) => {
+  try {
+   
+  } catch (e) {
+    console.error(e);
     res.status(500).json({
       ok: false,
-      message: 'Error interno en el servidor'
-    })
+      message: "Error interno en el servidor",
+    });
   }
- }
+};
+
+const eliminarProducto = async (req, res) => {
+  try {
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      ok: false,
+      message: "Error interno en el servidor",
+    });
+  }
+};
 
 //Todos los métodos deben ser EXPORTADOS (se utilizarán desde la app)
 //el que lo utilizará será "routes"
@@ -145,5 +151,5 @@ module.exports = {
   obtenerProducto,
   crearProducto,
   actualizarProducto,
-  eliminarProducto
-}
+  eliminarProducto,
+};
