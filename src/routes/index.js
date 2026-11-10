@@ -12,7 +12,7 @@ const ProductoRoutes = require('./producto.routes')
 //Esto es solo es uno para todas las rutas
 const router = Router()
 //Esto es por cada routes **
-router.use('/productos', ProductoRoutes)
+router.use('/productos', productoRoutes)
 
 //Se exportsn todas las rutas
 module.exports = router
