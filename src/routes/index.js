@@ -1,4 +1,4 @@
-//Nuestra aplicación puede tene muchos módulos:
+//Nuestra aplicación puede tener muchos módulos:
 //Productos > producto.controller > producto.routes
 //Clientes > clientes.controller > cliente.routes
 //Proveedores > proveedor.controller > proveedor.routes
@@ -11,8 +11,9 @@ const ProductoRoutes = require('./producto.routes')
 
 //Esto es solo es uno para todas las rutas
 const router = Router()
-//Esto es por cada routes **
-router.use('/productos', productoRoutes)
 
-//Se exportsn todas las rutas
+//Esto es por cada routes **
+router.use('/productos', ProductoRoutes)
+
+//Se exportan todas las rutas
 module.exports = router
