@@ -32,7 +32,7 @@ create table if not exists clientes
     email varchar(150) not null,
     create_at datetime not null default now(),
     updated_at datetime null,
-    constraint fk_email_clientes unique (email)
+    constraint uk_email_clientes unique (email)
 )engine = INNODB;
 
 insert into clientes (apellidos, nombres, telefono, direccion, email) values
@@ -52,7 +52,7 @@ create table if not exists proveedores
     direccion varchar(200) not null,
     create_at datetime not null default now(),
     updated_at datetime null,
-    constraint fk_ruc_proveedores unique (ruc)
+    constraint uk_ruc_proveedores unique (ruc)
 )engine = INNODB;
 
 insert into proveedores (razonsocial, contacto, ruc, direccion) values
